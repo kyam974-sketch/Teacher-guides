@@ -17,42 +17,16 @@ export default function App() {
   const [sd, setSd] = useState(null);
   const [st, setSt] = useState("17:00");
   const [ld, setLd] = useState(false);
-  const [ea, setEa] = useState(null);
-  const [ef, setEf] = useState({});
   const [el, setEl] = useState(0);
   const [lv, setLv] = useState(false);
-  const [ci, setCi] = useState(0);
-  const [dn, setDn] = useState(new Set());
-  const [as2, setAs] = useState(false);
-  const [pr, setPr] = useState(false);
   const [scn, setScn] = useState(false);
   const [ss, setSs] = useState("");
-  const [exp, setExp] = useState(new Set());
   
   const fr = useRef(null);
-  const tr = useRef(null);
-  const ar = useRef(null);
-
-  const cl = sc && sp != null && sd != null ? lessons[sc.id + "|" + sp + "|" + sd] : null;
 
   const svL = useCallback((l) => {
     setL(p => ({ ...p, [l.courseId + "|" + l.part + "|" + l.day]: l }));
   }, []);
-
-  const gT = (a, s) => {
-    const [h, m] = s.split(":").map(Number);
-    let c = 0;
-    return a.filter(x => !x.optional).map(x => {
-      const t = h * 60 + m + c;
-      c += x.duration;
-      return { ...x, st: `${String(Math.floor(t / 60) % 24).padStart(2, "0")}:${String(t % 60).padStart(2, "0")}` };
-    });
-  };
-
-  const td = a => a.filter(x => !x.optional).reduce((s, x) => s + x.duration, 0);
-  const ft = s => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
-  const goH = () => { setV("home"); setSc(null); setSp(null); setSd(null); setLv(false); setDn(new Set()); };
-  const togExp = id => { setExp(p => { const n = new Set(p); n.has(id) ? n.delete(id) : n.add(id); return n; }); };
 
   const scanD = async (files) => {
     if (!files || !files.length || !sc || !sp || !sd) return;
@@ -72,7 +46,7 @@ export default function App() {
           source: { type: "base64", media_type: isPdf ? "application/pdf" : "image/jpeg", data: b }
         });
       }
-      setSs("AI analizza...");
+      setSs("Analisi AI...");
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -83,72 +57,52 @@ export default function App() {
             role: "user",
             content: [
               ...imgs,
-              { type: "text", text: `Analizza la lezione Kids&Us per ${sc.name}. Rispondi solo in JSON.` }
+              { type: "text", text: "Estrai la lezione Kids&Us. Rispondi in JSON: [{name, duration, description, targetLanguage}]" }
             ]
           }]
         })
       });
       const d = await res.json();
       const txt = d.content[0].text;
-      let parsed = JSON.parse(txt.match(/\[[\s\S]*\]/)[0]);
-      const acts = parsed.map((p, i) => ({
-        id: "s" + Date.now() + "_" + i,
-        name: p.name || "?",
-        duration: p.duration || 3,
-        tracks: p.tracks || "",
-        targetLanguage: p.target_language || "",
-        description: p.description || "",
-        materials: p.materials || "",
-        optional: !!p.optional,
-        sub: p.sub || null
-      }));
-      svL({ courseId: sc.id, part: sp, day: sd, activities: acts });
+      const parsed = JSON.parse(txt.match(/\[[\s\S]*\]/)[0]);
+      svL({ courseId: sc.id, part: sp, day: sd, activities: parsed });
       setSs("Fatto!");
-      setTimeout(() => { setSs(""); setScn(false); }, 3000);
+      setTimeout(() => setScn(false), 3000);
     } catch (e) {
       setSs("Errore: " + e.message);
-      setTimeout(() => { setSs(""); setScn(false); }, 4000);
+      setTimeout(() => setScn(false), 4000);
     }
   };
 
-  if (pr && cl) {
-    const ti = gT(cl.activities, st);
-    return (
-      <div style={{ padding: 20, fontFamily: "Nunito" }}>
-        <button onClick={() => setPr(false)}>Chiudi</button>
-        <h2>{sc.name} - Day {sd}</h2>
-        {cl.activities.map(a => (
-          <div key={a.id} style={{ borderBottom: "1px solid #eee", padding: 10 }}>
-            <b>{a.name}</b> - {a.duration}m
-          </div>
-        ))}
-      </div>
-    );
-  }
+  const cl = sc && sp != null && sd != null ? lessons[sc.id + "|" + sp + "|" + sd] : null;
 
   return (
-    <div style={{ minHeight: "100vh", fontFamily: "Nunito", background: "#FAFAF7", padding: 20 }}>
+    <div style={{ minHeight: "100vh", fontFamily: "Nunito, sans-serif", padding: 20, background: "#FAFAF7" }}>
       {view === "home" && (
-        <div>
-          <h2>Ciao Chiara! 👋</h2>
+        <div style={{ maxWidth: 600, margin: "0 auto" }}>
+          <h2 style={{ fontWeight: 900, marginBottom: 20 }}>Ciao Chiara! 👋</h2>
           {CS.map(c => (
-            <div key={c.id} onClick={() => { setSc(c); setV("course"); }} style={{ background: "#fff", padding: 15, margin: "10px 0", borderRadius: 12, borderLeft: "5px solid " + c.color, cursor: "pointer" }}>
-              {c.em} {c.name}
+            <div key={c.id} onClick={() => { setSc(c); setV("course"); }} style={{ background: "#fff", padding: 20, marginBottom: 12, borderRadius: 16, borderLeft: "6px solid " + c.color, cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
+              <span style={{ fontSize: 24, marginRight: 10 }}>{c.em}</span>
+              <b style={{ fontSize: 18 }}>{c.name}</b>
             </div>
           ))}
         </div>
       )}
 
       {view === "course" && sc && (
-        <div>
-          <button onClick={goH}>Indietro</button>
-          <h2>{sc.em} {sc.name}</h2>
+        <div style={{ maxWidth: 600, margin: "0 auto" }}>
+          <button onClick={() => setV("home")} style={{ marginBottom: 20, border: "none", background: "none", cursor: "pointer", fontWeight: 800 }}>← Indietro</button>
+          <div style={{ display: "flex", alignItems: "center", gap: 15, marginBottom: 25 }}>
+             <div style={{ width: 60, height: 60, background: sc.bg, borderRadius: 15, display: "flex", alignItems: "center", justifyCenter: "center", fontSize: 30 }}>{sc.em}</div>
+             <h2 style={{ fontWeight: 900 }}>{sc.name}</h2>
+          </div>
           {sc.parts.map(p => (
-            <div key={p}>
-              <h4>{p}</h4>
-              <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
+            <div key={p} style={{ marginBottom: 20 }}>
+              <h4 style={{ color: sc.color, marginBottom: 10 }}>{p}</h4>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(60px, 1fr))", gap: 8 }}>
                 {[...Array(sc.dp)].map((_, i) => (
-                  <button key={i} onClick={() => { setSp(p); setSd(i + 1); setV("lesson"); }}>{i + 1}</button>
+                  <button key={i} onClick={() => { setSp(p); setSd(i + 1); setV("lesson"); }} style={{ padding: 10, borderRadius: 10, border: "1px solid #eee", background: "#fff", fontWeight: 800, cursor: "pointer" }}>{i + 1}</button>
                 ))}
               </div>
             </div>
@@ -157,14 +111,19 @@ export default function App() {
       )}
 
       {view === "lesson" && (
-        <div>
-          <button onClick={() => setV("course")}>Indietro</button>
-          <h2>Day {sd}</h2>
-          <input type="file" multiple onChange={(e) => scanD(e.target.files)} />
-          {scn && <div>{ss}</div>}
-          {cl && cl.activities.map(a => (
-            <div key={a.id} style={{ background: "#fff", padding: 10, margin: "5px 0", borderRadius: 8 }}>
-              <b>{a.name}</b> ({a.duration}m)
+        <div style={{ maxWidth: 600, margin: "0 auto" }}>
+          <button onClick={() => setV("course")} style={{ marginBottom: 20, border: "none", background: "none", cursor: "pointer", fontWeight: 800 }}>← Indietro</button>
+          <h2 style={{ color: sc.color, fontWeight: 900 }}>Day {sd}</h2>
+          <div style={{ background: "#fff", padding: 25, borderRadius: 20, textAlign: "center", border: "1px solid #eee", marginBottom: 20 }}>
+            <input type="file" multiple onChange={(e) => scanD(e.target.files)} style={{ display: "none" }} ref={fr} />
+            <button onClick={() => fr.current.click()} style={{ background: "#F26522", color: "#fff", border: "none", padding: "12px 24px", borderRadius: 12, fontWeight: 800, cursor: "pointer" }}>📸 SCANSIONA TG</button>
+          </div>
+          {scn && <div style={{ padding: 15, background: "#FFF3E0", borderRadius: 10, marginBottom: 15, fontWeight: 700 }}>{ss}</div>}
+          {cl && cl.activities.map((a, i) => (
+            <div key={i} style={{ background: "#fff", padding: 15, marginBottom: 10, borderRadius: 12, borderLeft: "4px solid " + sc.color }}>
+              <b style={{ display: "block", marginBottom: 4 }}>{a.name}</b>
+              <p style={{ fontSize: 13, color: "#666" }}>{a.description}</p>
+              {a.targetLanguage && <div style={{ marginTop: 8, padding: 8, background: "#FFFDE7", borderRadius: 6, fontSize: 11, borderLeft: "3px solid " + sc.color }}><b>Target:</b> {a.targetLanguage}</div>}
             </div>
           ))}
         </div>
@@ -172,8 +131,3 @@ export default function App() {
     </div>
   );
 }
-
-const S = {
-  btn: { padding: "8px 16px", borderRadius: 10, border: "none", cursor: "pointer", fontSize: 12, fontWeight: 800 },
-  sm: { width: 24, height: 24, borderRadius: 6, border: "1px solid #eee", background: "#fafafa" }
-};
