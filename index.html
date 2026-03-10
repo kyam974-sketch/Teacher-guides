@@ -1,17 +1,58 @@
-<div style="display:flex;gap:10px;margin-bottom:20px;justify-content:center;">
-    <input type="file" id="pdfInput" accept="application/pdf" style="display:none">
-    <button class="btn" onclick="document.getElementById('pdfInput').click()" style="background:#FFD600;color:#3C3C3B;width:200px">
-        📄 CARICA PDF LEZIONE
-    </button>
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Kids&Us Lesson Planner</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Nunito',sans-serif;background:#FAFAF7;color:#3C3C3B;min-height:100vh}
+        header{background:#3C3C3B;padding:15px;text-align:center;color:#FFD600;position:sticky;top:0;z-index:100}
+        .container{padding:20px;max-width:600px;margin:0 auto}
+        .btn{padding:12px 20px;border-radius:12px;border:none;cursor:pointer;font-size:14px;font-weight:800;font-family:'Nunito',sans-serif;transition:all 0.2s}
+        .btn:active{transform:scale(0.95)}
+        #loading{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.9);z-index:1000;flex-direction:column;align-items:center;justify-content:center}
+        .spinner{width:40px;height:40px;border:4px solid #f3f3f3;border-top:4px solid #FFD600;border-radius:50%;animation:sp 1s linear infinite}
+        @keyframes sp{to{transform:rotate(360deg)}}
+        #resultView{display:none;background:#fff;border-radius:20px;padding:20px;box-shadow:0 4px 20px rgba(0,0,0,0.08);margin-top:20px;animation:fi 0.4s ease-out}
+        @keyframes fi{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+        .lesson-header{border-bottom:2px solid #FFD600;padding-bottom:10px;margin-bottom:15px}
+        .activity-card{background:#fafafa;border-radius:12px;padding:15px;margin-bottom:12px;border-left:4px solid #3C3C3B}
+        .target-box{background:#FFFDE7;padding:8px;border-radius:8px;font-size:13px;margin-top:8px;border:1px dashed #FFD600}
+    </style>
+</head>
+<body>
+
+<header>
+    <h1 style="font-size:20px;font-weight:900;letter-spacing:-0.5px">Kids&Us Planner</h1>
+</header>
+
+<div id="loading">
+    <div class="spinner"></div>
+    <p style="margin-top:15px;font-weight:700;color:#3C3C3B">Analizzando il PDF...</p>
+</div>
+
+<div class="container">
+    <div style="text-align:center;margin-bottom:30px">
+        <p style="margin-bottom:15px;font-weight:600;color:#888">Carica le pagine della lezione in PDF</p>
+        <input type="file" id="pdfInput" accept="application/pdf" style="display:none">
+        <button class="btn" onclick="document.getElementById('pdfInput').click()" style="background:#FFD600;color:#3C3C3B;box-shadow:0 4px 10px rgba(255,214,0,0.3)">
+            📄 SELEZIONA PDF LEZIONE
+        </button>
+    </div>
+
+    <div id="resultView">
+        <div id="plannerContent"></div>
+        <button class="btn" onclick="window.location.reload()" style="background:#eee;color:#666;width:100%;margin-top:20px">NUOVO SCAN</button>
+    </div>
 </div>
 
 <script>
-// La funzione magica che legge il PDF e lo manda a Claude
 document.getElementById('pdfInput').onchange = async function(e) {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Mostriamo il caricamento
     document.getElementById('loading').style.display = 'flex';
     
     const reader = new FileReader();
@@ -38,7 +79,7 @@ document.getElementById('pdfInput').onchange = async function(e) {
                             },
                             {
                                 type: "text",
-                                text: "Analizza questa lezione Kids&Us e genera la tabella del planner in formato JSON. Mantieni il Target Language evidenziato."
+                                text: "Agisci come esperto Kids&Us. Estrai la lezione dal PDF e rispondi SOLO con un array JSON di attività. Ogni attività deve avere: name, duration, description, targetLanguage. Usa l'italiano per la descrizione."
                             }
                         ]
                     }]
@@ -46,17 +87,50 @@ document.getElementById('pdfInput').onchange = async function(e) {
             });
 
             const data = await response.json();
-            if (data.content && data.content[0]) {
-                // Qui chiamiamo la tua funzione originale per mostrare la tabella
-                // (Assicurati che la funzione parseResponse esista ancora sotto)
-                parseResponse(data.content[0].text);
+            if (data.content && data.content.length > 0) {
+                renderTable(data.content[0].text);
             }
         } catch (err) {
-            alert("Errore: " + err.message);
+            alert("Errore tecnico: " + err.message);
         } finally {
             document.getElementById('loading').style.display = 'none';
         }
     };
     reader.readAsDataURL(file);
 };
+
+function renderTable(jsonText) {
+    const container = document.getElementById('plannerContent');
+    const view = document.getElementById('resultView');
+    
+    try {
+        // Pulizia del testo da eventuali tag di Claude
+        const cleanJson = jsonText.replace(/```json/g, '').replace(/```/g, '').trim();
+        const activities = JSON.parse(cleanJson);
+        
+        let html = '<div class="lesson-header"><h3>Lezione Rilevata</h3></div>';
+        
+        activities.forEach(act => {
+            html += `
+                <div class="activity-card">
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                        <b style="font-size:15px">${act.name}</b>
+                        <span style="background:#3C3C3B;color:#FFD600;padding:2px 8px;border-radius:6px;font-size:11px">${act.duration} min</span>
+                    </div>
+                    <p style="font-size:13px;margin-top:8px;color:#555">${act.description}</p>
+                    ${act.targetLanguage ? `<div class="target-box"><b>Target:</b> ${act.targetLanguage}</div>` : ''}
+                </div>
+            `;
+        });
+        
+        container.innerHTML = html;
+        view.style.display = 'block';
+    } catch (e) {
+        container.innerHTML = `<p style="color:red">Errore nella lettura dei dati. Claude ha risposto: <br><small>${jsonText}</small></p>`;
+        view.style.display = 'block';
+    }
+}
 </script>
+
+</body>
+</html>
