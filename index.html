@@ -8,57 +8,111 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Nunito',sans-serif;background:#FAFAF7;color:#3C3C3B;min-height:100vh}
-header{background:#3C3C3B;padding:15px;text-align:center;color:#FFD600;position:sticky;top:0;z-index:100}
-.container{padding:15px;max-width:500px;margin:0 auto}
-.btn{padding:10px 20px;border-radius:12px;border:none;cursor:pointer;font-size:13px;font-weight:800;font-family:'Nunito',sans-serif;transition:all 0.2s;display:inline-flex;align-items:center;gap:8px}
-#loading{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.9);z-index:1000;flex-direction:column;align-items:center;justify-content:center}
-.spinner{width:40px;height:40px;border:4px solid #f3f3f3;border-top:4px solid #FFD600;border-radius:50%;animation:sp 1s linear infinite}
-@keyframes sp{to{transform:rotate(360deg)}}
-/* STILI TABELLA ORIGINALI */
-.card{background:#fff;border-radius:18px;padding:15px;box-shadow:0 4px 15px rgba(0,0,0,0.05);margin-bottom:15px;animation:fi 0.4s ease-out}
 @keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.row{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid #f5f5f5;align-items:baseline}
-.time{font-family:monospace;font-weight:800;color:#FFD600;font-size:13px;min-width:45px}
-.content{flex:1}
-.target{margin-top:6px;padding:6px 10px;background:#FFFDE7;border-radius:8px;font-size:11px;border-left:3px solid #FFD600;color:#555}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media print{body>*:not(#printView){display:none!important}#printView{display:block!important;position:static!important}}
+.btn{padding:8px 16px;border-radius:10px;border:none;cursor:pointer;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif}
+.sm{width:26px;height:26px;border-radius:7px;border:1px solid #eee;background:#fafafa;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;color:#bbb}
+.sm.active{background:#3C3C3B;color:#FFD600;border-color:#3C3C3B}
+#loading{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.9);z-index:1000;flex-direction:column;align-items:center;justify-content:center}
+.spinner{width:32px;height:32px;border:3px solid #f3f3f3;border-top:3px solid #FFD600;border-radius:50%;animation:sp .8s linear infinite}
 </style>
 </head>
 <body>
 
-<header>
-    <h1 style="font-size:20px;font-weight:900">Lesson Planner</h1>
+<header style="background:#3C3C3B;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;color:#FFD600;position:sticky;top:0;z-index:100">
+    <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:32px;height:32px;background:#FFD600;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#3C3C3B;font-weight:900;font-size:18px">K</div>
+        <h1 style="font-size:16px;font-weight:900;letter-spacing:-0.5px">Planner</h1>
+    </div>
+    <div style="display:flex;gap:8px">
+        <button class="sm" onclick="toggleSettings()">⚙️</button>
+    </div>
 </header>
 
 <div id="loading">
     <div class="spinner"></div>
-    <p style="margin-top:15px;font-weight:700">Analizzando il PDF della lezione...</p>
+    <p style="margin-top:12px;font-size:13px;font-weight:800;color:#3C3C3B">ELABORAZIONE...</p>
 </div>
 
-<div class="container">
-    <div style="text-align:center;margin:20px 0">
-        <input type="file" id="pdfInput" accept="application/pdf" style="display:none">
-        <button class="btn" onclick="document.getElementById('pdfInput').click()" style="background:#FFD600;color:#3C3C3B;box-shadow:0 4px 10px rgba(255,214,0,0.3)">
-            <span style="font-size:18px">📄</span> CARICA PDF LEZIONE
+<div id="mainView" style="padding:16px;max-width:500px;margin:0 auto">
+    <div id="settings" style="display:none;background:#fff;padding:15px;border-radius:15px;margin-bottom:15px;box-shadow:0 4px 12px rgba(0,0,0,0.05)">
+        <p style="font-size:11px;font-weight:800;margin-bottom:10px;color:#aaa;text-transform:uppercase">Configurazione</p>
+        <div style="display:flex;flex-direction:column;gap:10px">
+            <div>
+                <label style="display:block;font-size:12px;font-weight:700;margin-bottom:4px">Durata Lezione (min)</label>
+                <input type="number" id="classDuration" value="45" style="width:100%;padding:8px;border-radius:8px;border:1px solid #eee;font-family:inherit">
+            </div>
+        </div>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-bottom:20px;overflow-x:auto;padding-bottom:5px">
+        <button class="sm active" onclick="setGroup('babies',this)" style="min-width:80px;height:34px">👶 Babies</button>
+        <button class="sm" onclick="setGroup('kids',this)" style="min-width:80px;height:34px">👦 Kids</button>
+        <button class="sm" onclick="setGroup('tweens',this)" style="min-width:80px;height:34px">👧 Tweens</button>
+    </div>
+
+    <div style="background:#fff;border-radius:20px;padding:25px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,0.04);border:1px solid #f0f0f0">
+        <div style="font-size:40px;margin-bottom:15px">📚</div>
+        <h2 style="font-size:18px;font-weight:900;margin-bottom:8px">Nuovo Planner</h2>
+        <p style="font-size:13px;color:#888;margin-bottom:20px">Carica la Teacher Guide (PDF o Foto)</p>
+        
+        <input type="file" id="fileInput" accept="image/*,application/pdf" style="display:none">
+        <button class="btn" onclick="document.getElementById('fileInput').click()" style="background:#FFD600;color:#3C3C3B;width:100%;padding:14px;font-size:14px;box-shadow:0 4px 15px rgba(255,214,0,0.3)">
+            📸 CARICA LEZIONE
         </button>
     </div>
 
-    <div id="resultView" style="display:none">
-        <div class="card" id="plannerContent"></div>
-        <button class="btn" onclick="window.location.reload()" style="background:#3C3C3B;color:#fff;width:100%;justify-content:center;margin-top:10px">
-            NUOVA SCANSIONE
-        </button>
-    </div>
+    <div id="result" style="display:none;margin-top:20px;animation:fi 0.4s ease-out"></div>
 </div>
 
 <script>
-document.getElementById('pdfInput').onchange = async function(e) {
+let currentGroup = 'babies';
+const colors = { babies: '#FFD600', kids: '#00AEEF', tweens: '#ED008C' };
+
+function setGroup(g, btn) {
+    currentGroup = g;
+    document.querySelectorAll('.sm').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    btn.style.backgroundColor = colors[g];
+    btn.style.color = g === 'babies' ? '#3C3C3B' : '#fff';
+}
+
+function toggleSettings() {
+    const s = document.getElementById('settings');
+    s.style.display = s.style.display === 'none' ? 'block' : 'none';
+}
+
+document.getElementById('fileInput').onchange = async function(e) {
     const file = e.target.files[0];
-    if (!file) return;
+    if(!file) return;
+
     document.getElementById('loading').style.display = 'flex';
-    
     const reader = new FileReader();
+    
     reader.onload = async function() {
         const base64 = reader.result.split(',')[1];
+        const isPdf = file.type === 'application/pdf';
+        
+        // Prepariamo il contenuto per Claude
+        const content = [];
+        if (isPdf) {
+            content.push({
+                type: "document",
+                source: { type: "base64", media_type: "application/pdf", data: base64 }
+            });
+        } else {
+            content.push({
+                type: "image",
+                source: { type: "base64", media_type: "image/png", data: base64 }
+            });
+        }
+        
+        content.push({
+            type: "text",
+            text: `Estrai le attività da questa lezione Kids&Us per il gruppo ${currentGroup}. Rispondi solo con un JSON: { "unit": "...", "lesson": "...", "activities": [ { "id": 1, "name": "...", "duration": 5, "description": "...", "targetLanguage": "...", "optional": false } ] }`
+        });
+
         try {
             const response = await fetch('/api/generate', {
                 method: 'POST',
@@ -66,20 +120,14 @@ document.getElementById('pdfInput').onchange = async function(e) {
                 body: JSON.stringify({
                     model: "claude-3-5-sonnet-20241022",
                     max_tokens: 4000,
-                    messages: [{
-                        role: "user",
-                        content: [
-                            { type: "document", source: { type: "base64", media_type: "application/pdf", data: base64 } },
-                            { type: "text", text: "Genera il planner Kids&Us in JSON. Ogni attività deve avere: name, duration, description, targetLanguage. Usa l'italiano per la descrizione." }
-                        ]
-                    }]
+                    messages: [{ role: "user", content: content }]
                 })
             });
 
             const data = await response.json();
-            if (data.content && data.content[0]) {
-                renderPlanner(data.content[0].text);
-            }
+            const text = data.content[0].text;
+            const json = JSON.parse(text.match(/\{[\s\S]*\}/)[0]);
+            renderPlanner(json);
         } catch (err) {
             alert("Errore: " + err.message);
         } finally {
@@ -89,42 +137,32 @@ document.getElementById('pdfInput').onchange = async function(e) {
     reader.readAsDataURL(file);
 };
 
-function renderPlanner(jsonText) {
-    try {
-        const cleanJson = jsonText.replace(/```json/g, '').replace(/```/g, '').trim();
-        const activities = JSON.parse(cleanJson);
-        const container = document.getElementById('plannerContent');
-        
-        let html = '<h3 style="margin-bottom:15px;font-size:16px;border-bottom:2px solid #FFD600;padding-bottom:5px">Scheda Lezione</h3>';
-        let currentTime = 0;
-
-        activities.forEach(act => {
-            const duration = parseInt(act.duration) || 5;
-            const startTime = formatTime(currentTime);
-            html += `
-                <div class="row">
-                    <div class="time">${startTime}</div>
-                    <div class="content">
-                        <b style="font-size:14px">${act.name}</b>
-                        <p style="font-size:12px;color:#666;margin-top:2px">${act.description}</p>
-                        ${act.targetLanguage ? `<div class="target"><b>Target:</b> ${act.targetLanguage}</div>` : ''}
-                    </div>
+function renderPlanner(data) {
+    const res = document.getElementById('result');
+    res.style.display = 'block';
+    const cc = colors[currentGroup];
+    
+    let html = `<div style="background:#fff;padding:20px;border-radius:20px;box-shadow:0 4px 15px rgba(0,0,0,0.05)">
+        <h3 style="color:${cc};margin-bottom:5px">Unit ${data.unit} - ${data.lesson}</h3>
+        <p style="font-size:12px;color:#aaa;margin-bottom:15px">${currentGroup.toUpperCase()}</p>`;
+    
+    let time = 0;
+    data.activities.forEach(a => {
+        html += `<div style="padding:10px 0;border-bottom:1px solid #eee">
+            <div style="display:flex;gap:10px;align-items:baseline">
+                <b style="font-family:monospace;color:${cc};width:40px">${time}'</b>
+                <div style="flex:1">
+                    <b style="font-size:14px">${a.name}</b>
+                    <p style="font-size:12px;color:#666">${a.description}</p>
+                    ${a.targetLanguage ? `<div style="margin-top:5px;padding:5px;background:#FFFDE7;border-radius:5px;font-size:11px;border-left:3px solid ${cc}"><b>Target:</b> ${a.targetLanguage}</div>` : ''}
                 </div>
-            `;
-            currentTime += duration;
-        });
-
-        container.innerHTML = html;
-        document.getElementById('resultView').style.display = 'block';
-    } catch (e) {
-        alert("Errore nella formattazione dei dati.");
-    }
-}
-
-function formatTime(minutes) {
-    const h = Math.floor(minutes / 60);
-    const m = minutes % 60;
-    return `${m.toString().padStart(2, '0')}'`; // Formato Kids&Us (es. 05')
+            </div>
+        </div>`;
+        time += a.duration;
+    });
+    
+    html += `</div>`;
+    res.innerHTML = html;
 }
 </script>
 </body>
