@@ -1,144 +1,179 @@
-import { useState, useEffect, useRef, useCallback } from “react”;
+import React, { useState, useEffect, useRef, useCallback } from "react";
 
 const CS = [
-{id:“mousy”,name:“Mousy”,color:”#8CB43B”,bg:”#F0F7E1”,em:”\u{1F42D}”,age:“1 anno”,parts:[“Part One”,“Part Two”,“Part Three”,“Part Four”],dp:10},
-{id:“linda”,name:“Linda”,color:”#F26522”,bg:”#FFF0E6”,em:”\u{1F431}”,age:“2 anni”,parts:[“Part One”,“Part Two”,“Part Three”,“Part Four”],dp:10},
-{id:“sam”,name:“Sam”,color:”#00B3B0”,bg:”#E0F7F7”,em:”\u{1F9F8}”,age:“3 anni”,parts:[“Story 1: Happy Birthday”,“Story 2: The Park”,“Story 3: The Zoo”,“Story 4: The Picnic”],dp:10},
-{id:“emma”,name:“Emma”,color:”#E878A0”,bg:”#FFF0F5”,em:”\u{1F98B}”,age:“4 anni”,parts:[“Story 1: Sweets”,“Story 2: Eggs”,“Story 3: Bath”,“Story 4”],dp:10},
-{id:“oliver”,name:“Oliver”,color:”#00B3B0”,bg:”#E0F7F7”,em:”\u{1F438}”,age:“5 anni”,parts:[“Story 1: Wobbly Tooth”,“Story 2: Flu”,“Story 3: Baby”,“Story 4”],dp:10},
-{id:“marcia”,name:“Marcia”,color:”#E94E58”,bg:”#FFEBEE”,em:”\u{1F380}”,age:“6 anni”,parts:[“Story 1: The Alien”,“Story 2: Polly Goes to School”,“Story 3: The Ski Trip”,“Story 4: The Birthday Cake”],dp:10},
+  {id:"mousy",name:"Mousy",color:"#8CB43B",bg:"#F0F7E1",em:"\u{1F42D}",age:"1 anno",parts:["Part One","Part Two","Part Three","Part Four"],dp:10},
+  {id:"linda",name:"Linda",color:"#F26522",bg:"#FFF0E6",em:"\u{1F431}",age:"2 anni",parts:["Part One","Part Two","Part Three","Part Four"],dp:10},
+  {id:"sam",name:"Sam",color:"#00B3B0",bg:"#E0F7F7",em:"\u{1F9F8}",age:"3 anni",parts:["Story 1: Happy Birthday","Story 2: The Park","Story 3: The Zoo","Story 4: The Picnic"],dp:10},
+  {id:"emma",name:"Emma",color:"#E878A0",bg:"#FFF0F5",em:"\u{1F98B}",age:"4 anni",parts:["Story 1: Sweets","Story 2: Eggs","Story 3: Bath","Story 4"],dp:10},
+  {id:"oliver",name:"Oliver",color:"#00B3B0",bg:"#E0F7F7",em:"\u{1F438}",age:"5 anni",parts:["Story 1: Wobbly Tooth","Story 2: Flu","Story 3: Baby","Story 4"],dp:10},
+  {id:"marcia",name:"Marcia",color:"#E94E58",bg:"#FFEBEE",em:"\u{1F380}",age:"6 anni",parts:["Story 1: The Alien","Story 2: Polly Goes to School","Story 3: The Ski Trip","Story 4: The Birthday Cake"],dp:10}
 ];
 
-async function sG(k,f=null){try{const r=await window.storage.get(k);return r?JSON.parse(r.value):f}catch{return f}}
-async function sS(k,v){try{await window.storage.set(k,JSON.stringify(v))}catch(e){console.error(e)}}
+export default function App() {
+  const [view, setV] = useState("home");
+  const [lessons, setL] = useState({});
+  const [sc, setSc] = useState(null);
+  const [sp, setSp] = useState(null);
+  const [sd, setSd] = useState(null);
+  const [st, setSt] = useState("17:00");
+  const [ld, setLd] = useState(false);
+  const [ea, setEa] = useState(null);
+  const [ef, setEf] = useState({});
+  const [el, setEl] = useState(0);
+  const [lv, setLv] = useState(false);
+  const [ci, setCi] = useState(0);
+  const [dn, setDn] = useState(new Set());
+  const [as2, setAs] = useState(false);
+  const [pr, setPr] = useState(false);
+  const [scn, setScn] = useState(false);
+  const [ss, setSs] = useState("");
+  const [exp, setExp] = useState(new Set());
+  
+  const fr = useRef(null);
+  const tr = useRef(null);
+  const ar = useRef(null);
 
-export default function App(){
-const[view,setV]=useState(“home”);
-const[lessons,setL]=useState({});
-const[sc,setSc]=useState(null);
-const[sp,setSp]=useState(null);
-const[sd,setSd]=useState(null);
-const[st,setSt]=useState(“17:00”);
-const[ld,setLd]=useState(true);
-const[ea,setEa]=useState(null);
-const[ef,setEf]=useState({});
-const[el,setEl]=useState(0);
-const[lv,setLv]=useState(false);
-const[ci,setCi]=useState(0);
-const[dn,setDn]=useState(new Set());
-const[as2,setAs]=useState(false);
-const[pr,setPr]=useState(false);
-const[scn,setScn]=useState(false);
-const[ss,setSs]=useState(””);
-const[exp,setExp]=useState(new Set());
-const fr=useRef(null),tr=useRef(null),ar=useRef(null);
+  const cl = sc && sp != null && sd != null ? lessons[sc.id + "|" + sp + "|" + sd] : null;
 
-useEffect(()=>{(async()=>{const s=await sG(“ku7”,{});setL(s);setLd(false)})()},[]);
-useEffect(()=>{if(!ld&&Object.keys(lessons).length>0)sS(“ku7”,lessons)},[lessons,ld]);
-useEffect(()=>{if(lv)tr.current=setInterval(()=>setEl(e=>e+1),1000);else clearInterval(tr.current);return ()=>clearInterval(tr.current)},[lv]);
-useEffect(()=>{if(as2&&view===“live”&&!lv){ar.current=setInterval(()=>{const n=new Date(),p=st.split(”:”).map(Number);if(n.getHours()===p[0]&&n.getMinutes()===p[1]&&n.getSeconds()<2){setLv(true);setAs(false)}},1000)}else clearInterval(ar.current);return ()=>clearInterval(ar.current)},[as2,view,lv,st]);
+  const svL = useCallback((l) => {
+    setL(p => ({ ...p, [l.courseId + "|" + l.part + "|" + l.day]: l }));
+  }, []);
 
-const cl=sc&&sp!=null&&sd!=null?lessons[sc.id+”|”+sp+”|”+sd]:null;
-const svL=useCallback(l=>{setL(p=>({…p,[l.courseId+”|”+l.part+”|”+l.day]:l}))},[]);
-const gT=(a,s)=>{const[h,m]=s.split(”:”).map(Number);let c=0;return a.filter(x=>!x.optional).map(x=>{const t=h*60+m+c;c+=x.duration;return {…x,st:`${String(Math.floor(t/60)%24).padStart(2,"0")}:${String(t%60).padStart(2,"0")}`}})};
-const td=a=>a.filter(x=>!x.optional).reduce((s,x)=>s+x.duration,0);
-const ft=s=>`${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;
-const goH=()=>{setV(“home”);setSc(null);setSp(null);setSd(null);setLv(false);setDn(new Set())};
-const togExp=id=>{setExp(p=>{const n=new Set(p);n.has(id)?n.delete(id):n.add(id);return n})};
+  const gT = (a, s) => {
+    const [h, m] = s.split(":").map(Number);
+    let c = 0;
+    return a.filter(x => !x.optional).map(x => {
+      const t = h * 60 + m + c;
+      c += x.duration;
+      return { ...x, st: `${String(Math.floor(t / 60) % 24).padStart(2, "0")}:${String(t % 60).padStart(2, "0")}` };
+    });
+  };
 
-const scanD=async files=>{
-if(!files||!files.length||!sc||!sp||!sd)return;
-setScn(true);setSs(“Lettura…”);
-try{
-const imgs=[];
-for(const f of files){const b=await new Promise((r,j)=>{const rd=new FileReader();rd.onload=()=>r(rd.result.split(”,”)[1]);rd.onerror=j;rd.readAsDataURL(f)});imgs.push({type:“image”,source:{type:“base64”,media_type:f.type||“image/jpeg”,data:b}})}
-setSs(“AI analizza “+imgs.length+” pagine…”);
-var pr=“You are analyzing a Kids&Us Teacher Guide lesson plan for: “+sc.name+” - “+sp+” - Day “+sd+”.\n\n”;
-pr+=“CRITICAL RULES:\n”;
-pr+=“1. The LESSON PLAN section lists numbered activities. Extract EXACTLY those in EXACT order.\n”;
-pr+=“2. Warm-Up Routines is always ONE single block (usually 15min). Output as ONE item. Put sub-routine details in the sub array.\n”;
-pr+=“3. Use the EXACT duration in parentheses, e.g. ACTIVITY 1: LET’S WASH EMMA! (6’) = 6 minutes.\n”;
-pr+=“4. Total should be about 60min for kids or 45min for babies.\n”;
-pr+=“5. target_language: ONLY exact phrases in bold/quotes. VERBATIM. Separate with | \n”;
-pr+=“6. description: MAX 1 sentence.\n”;
-pr+=“7. materials: brief list.\n”;
-pr+=“8. BONUS/extra time activities: optional=true\n”;
-pr+=“9. If a warm-up routine page is included, extract sub-routines into sub array with name and target_language.\n\n”;
-pr+=“Respond with JSON array ONLY. Each item: {name, duration, tracks, target_language, description, materials, optional, sub (optional array of {name, target_language})}”;
-const res=await fetch(“https://api.anthropic.com/v1/messages”,{method:“POST”,headers:{“Content-Type”:“application/json”},body:JSON.stringify({model:“claude-sonnet-4-20250514”,max_tokens:4000,messages:[{role:“user”,content:[…imgs,{type:“text”,text:pr}]}]})});
-const d=await res.json();
-const txt=d.content?.map(c=>c.type===“text”?c.text:””).join(””)||””;
-setSs(“Elaborazione…”);
-let parsed;
-try{parsed=JSON.parse(txt.replace(/`json\n?|`/g,””).trim())}catch{const m=txt.match(/[[\s\S]*]/);if(m)parsed=JSON.parse(m[0]);else throw new Error(“Risposta AI non valida”)}
-if(!Array.isArray(parsed)||!parsed.length)throw new Error(“Nessuna attivita trovata”);
-const acts=parsed.map((p,i)=>({id:“s”+Date.now()+”_”+i,name:p.name||”?”,duration:p.duration||3,tracks:p.tracks||””,targetLanguage:p.target_language||””,description:p.description||””,materials:p.materials||””,optional:!!p.optional,sub:p.sub||null}));
-const tot=acts.filter(a=>!a.optional).reduce((s,a)=>s+a.duration,0);
-svL({courseId:sc.id,part:sp,day:sd,activities:acts});
-setSs(“Fatto! “+acts.length+” attivita, “+tot+” min totali”);
-setTimeout(()=>{setSs(””);setScn(false)},3500);
-}catch(e){setSs(“Errore: “+e.message);setTimeout(()=>{setSs(””);setScn(false)},4000)}
-};
+  const td = a => a.filter(x => !x.optional).reduce((s, x) => s + x.duration, 0);
+  const ft = s => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+  const goH = () => { setV("home"); setSc(null); setSp(null); setSd(null); setLv(false); setDn(new Set()); };
+  const togExp = id => { setExp(p => { const n = new Set(p); n.has(id) ? n.delete(id) : n.add(id); return n; }); };
 
-const delL=()=>{const k=sc.id+”|”+sp+”|”+sd;setL(p=>{const n={…p};delete n[k];return n})};
+  const scanD = async (files) => {
+    if (!files || !files.length || !sc || !sp || !sd) return;
+    setScn(true); setSs("Lettura...");
+    try {
+      const imgs = [];
+      for (const f of files) {
+        const b = await new Promise((r, j) => {
+          const rd = new FileReader();
+          rd.onload = () => r(rd.result.split(",")[1]);
+          rd.onerror = j;
+          rd.readAsDataURL(f);
+        });
+        const isPdf = f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf");
+        imgs.push({
+          type: isPdf ? "document" : "image",
+          source: { type: "base64", media_type: isPdf ? "application/pdf" : "image/jpeg", data: b }
+        });
+      }
+      setSs("AI analizza...");
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-3-5-sonnet-20241022",
+          max_tokens: 4000,
+          messages: [{
+            role: "user",
+            content: [
+              ...imgs,
+              { type: "text", text: `Analizza la lezione Kids&Us per ${sc.name}. Rispondi solo in JSON.` }
+            ]
+          }]
+        })
+      });
+      const d = await res.json();
+      const txt = d.content[0].text;
+      let parsed = JSON.parse(txt.match(/\[[\s\S]*\]/)[0]);
+      const acts = parsed.map((p, i) => ({
+        id: "s" + Date.now() + "_" + i,
+        name: p.name || "?",
+        duration: p.duration || 3,
+        tracks: p.tracks || "",
+        targetLanguage: p.target_language || "",
+        description: p.description || "",
+        materials: p.materials || "",
+        optional: !!p.optional,
+        sub: p.sub || null
+      }));
+      svL({ courseId: sc.id, part: sp, day: sd, activities: acts });
+      setSs("Fatto!");
+      setTimeout(() => { setSs(""); setScn(false); }, 3000);
+    } catch (e) {
+      setSs("Errore: " + e.message);
+      setTimeout(() => { setSs(""); setScn(false); }, 4000);
+    }
+  };
 
-useEffect(()=>{if(lv&&cl){const t=gT(cl.activities,st);let c=0;for(let j=0;j<t.length;j++){c+=t[j].duration;if(el/60<c){setCi(j);return}}setCi(t.length-1)}},[el,lv]);
+  if (pr && cl) {
+    const ti = gT(cl.activities, st);
+    return (
+      <div style={{ padding: 20, fontFamily: "Nunito" }}>
+        <button onClick={() => setPr(false)}>Chiudi</button>
+        <h2>{sc.name} - Day {sd}</h2>
+        {cl.activities.map(a => (
+          <div key={a.id} style={{ borderBottom: "1px solid #eee", padding: 10 }}>
+            <b>{a.name}</b> - {a.duration}m
+          </div>
+        ))}
+      </div>
+    );
+  }
 
-if(ld) return <div style={{display:“flex”,alignItems:“center”,justifyContent:“center”,height:“100vh”,fontFamily:“Nunito,sans-serif”}}><p style={{color:”#8CB43B”,fontWeight:700}}>Caricamento…</p></div>;
-const cc=sc?.color||”#8CB43B”,cbg=sc?.bg||”#F0F7E1”;
+  return (
+    <div style={{ minHeight: "100vh", fontFamily: "Nunito", background: "#FAFAF7", padding: 20 }}>
+      {view === "home" && (
+        <div>
+          <h2>Ciao Chiara! 👋</h2>
+          {CS.map(c => (
+            <div key={c.id} onClick={() => { setSc(c); setV("course"); }} style={{ background: "#fff", padding: 15, margin: "10px 0", borderRadius: 12, borderLeft: "5px solid " + c.color, cursor: "pointer" }}>
+              {c.em} {c.name}
+            </div>
+          ))}
+        </div>
+      )}
 
-// PRINT - isolated page, only lesson content
-if(pr&&cl){const ti=gT(cl.activities,st); return (<div id=“pv” style={{fontFamily:“Nunito,sans-serif”,padding:24,maxWidth:800,margin:“0 auto”,background:”#fff”}}><style>{”@import url(‘https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap’);@media print{body>*{display:none!important}#pv{display:block!important}@page{margin:12mm;size:A4}}*{box-sizing:border-box}”}</style><div style={{display:“flex”,justifyContent:“space-between”,marginBottom:16}}><button onClick={()=>window.print()} style={{padding:“8px 20px”,background:cc,color:”#fff”,border:“none”,borderRadius:10,cursor:“pointer”,fontWeight:700}}>Stampa</button><button onClick={()=>setPr(false)} style={{padding:“8px 20px”,background:”#eee”,border:“none”,borderRadius:10,cursor:“pointer”,fontWeight:700}}>Chiudi</button></div><div style={{borderBottom:“3px solid “+cc,paddingBottom:8,marginBottom:16}}><h1 style={{margin:0,fontSize:20}}>{sc?.em} {sc?.name} — {sp} — <span style={{color:cc}}>Day {sd}</span></h1><p style={{fontSize:11,color:”#888”,margin:“4px 0 0”}}>{st} | {td(cl.activities)} min | {cl.activities.filter(a=>!a.optional).length} att.</p></div>{cl.activities.map(a=>{const t=ti.find(x=>x.id===a.id); return (<div key={a.id} style={{padding:“6px 0”,borderBottom:“1px solid #eee”,opacity:a.optional?.6:1}}><div style={{display:“flex”,gap:8,alignItems:“baseline”}}><b style={{fontFamily:“monospace”,color:cc,width:44,fontSize:12}}>{t?t.st:”—”}</b><b style={{fontSize:12}}>{a.optional?”[OPT] “:””}{a.name}</b><span style={{color:”#aaa”,fontSize:10}}>{a.duration}m {a.tracks}</span></div>{a.targetLanguage&&<div style={{margin:“3px 0 0 52px”,padding:“3px 6px”,background:”#FFFDE7”,borderRadius:4,fontSize:10,borderLeft:“2px solid “+cc}}>{a.targetLanguage}</div>}{a.sub&&<div style={{margin:“3px 0 0 52px”,fontSize:10,color:”#888”}}>{a.sub.map((s,i)=> <div key={i} style={{marginTop:2}}><b>{s.name}:</b> {s.target_language||”—”}</div>)}</div>}{a.description&&<p style={{margin:“2px 0 0 52px”,fontSize:10,color:”#888”}}>{a.description}</p>}</div>)})}<div style={{marginTop:16,padding:10,background:”#f8f8f5”,borderRadius:8,fontSize:10}}><b style={{color:”#00B3B0”}}>MATERIALI:</b> {cl.activities.filter(a=>a.materials).map(a=>a.name+”: “+a.materials).join(” | “)}</div></div>)}
+      {view === "course" && sc && (
+        <div>
+          <button onClick={goH}>Indietro</button>
+          <h2>{sc.em} {sc.name}</h2>
+          {sc.parts.map(p => (
+            <div key={p}>
+              <h4>{p}</h4>
+              <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
+                {[...Array(sc.dp)].map((_, i) => (
+                  <button key={i} onClick={() => { setSp(p); setSd(i + 1); setV("lesson"); }}>{i + 1}</button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
-return (<div style={{minHeight:“100vh”,fontFamily:“Nunito,sans-serif”,color:”#3C3C3B”,background:”#FAFAF7”}}><style>{”@import url(‘https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap’);*{box-sizing:border-box}body{margin:0;background:#FAFAF7}@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}@keyframes sp{to{transform:rotate(360deg)}}”}</style>
-
-  <header style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 20px",background:"#fff",borderBottom:"3px solid #8CB43B",position:"sticky",top:0,zIndex:100,flexWrap:"wrap",gap:8}}><div style={{display:"flex",alignItems:"center",gap:10,cursor:"pointer"}} onClick={goH}><div style={{width:38,height:38,borderRadius:11,background:"linear-gradient(135deg,#8CB43B,#A5C74A)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}>{"\u{1F42D}"}</div><div><h1 style={{margin:0,fontSize:15,fontWeight:800}}><span style={{color:"#8CB43B"}}>Kids</span><span style={{color:"#F26522"}}>&</span><span style={{color:"#E878A0"}}>Us</span> Planner</h1></div></div>{view!=="home"&&<nav style={{fontSize:12,color:"#888",fontWeight:600}}><span style={{cursor:"pointer",color:"#8CB43B"}} onClick={goH}>Home</span>{sc&&<><span> / </span><span style={{cursor:"pointer",color:cc}} onClick={()=>{setV("course");setSp(null);setSd(null)}}>{sc.em} {sc.name}</span></>}{sp&&sd&&<span> / {sp} — Day {sd}</span>}</nav>}</header>
-
-  <main style={{maxWidth:900,margin:"0 auto",padding:"20px 16px"}}>
-
-{view===“home”&&<div style={{display:“flex”,flexDirection:“column”,gap:12}}><div style={{background:“linear-gradient(135deg,#F0F7E1,#E0F7F7,#FFF0F5)”,borderRadius:20,padding:“28px 24px”}}><h2 style={{margin:0,fontSize:24,fontWeight:900}}>Ciao Chiara! {”\u{1F44B}”}</h2><p style={{margin:“8px 0 0”,fontSize:14,color:”#666”,fontWeight:600}}>Seleziona un corso.</p></div>{CS.map((c,i)=>{const n=Object.keys(lessons).filter(k=>k.startsWith(c.id+”|”)).length;return <div key={c.id} style={{display:“flex”,alignItems:“center”,gap:14,background:”#fff”,borderRadius:16,padding:“16px 20px”,cursor:“pointer”,borderLeft:“5px solid “+c.color,boxShadow:“0 2px 8px #0001”,animation:“fi .4s “+i*80+“ms both”}} onClick={()=>{setSc(c);setV(“course”)}}><div style={{width:50,height:50,borderRadius:14,background:c.bg,display:“flex”,alignItems:“center”,justifyContent:“center”,fontSize:28}}>{c.em}</div><div style={{flex:1}}><h3 style={{margin:0,fontSize:17,fontWeight:800}}>{c.name}</h3><p style={{margin:“2px 0”,fontSize:12,color:”#888”,fontWeight:600}}>{c.age}{n>0&&” — “+n+” lezioni”}</p></div><span style={{fontSize:20,color:c.color,fontWeight:800}}>{”\u{2192}”}</span></div>})}</div>}
-
-{view===“course”&&sc&&<div><div style={{display:“flex”,alignItems:“center”,gap:16,padding:“20px 0”,borderBottom:“3px solid “+cc}}><div style={{width:60,height:60,borderRadius:16,background:cbg,display:“flex”,alignItems:“center”,justifyContent:“center”,fontSize:32}}>{sc.em}</div><div><h2 style={{margin:0,fontSize:26,fontWeight:900}}>{sc.name}</h2><p style={{margin:“4px 0”,fontSize:14,color:”#888”,fontWeight:600}}>{sc.age}</p></div></div>{sc.parts.map(p=> <div key={p} style={{marginTop:24}}><h3 style={{fontSize:15,fontWeight:800,color:cc,marginBottom:10}}>{p}</h3><div style={{display:“grid”,gridTemplateColumns:“repeat(auto-fill,minmax(78px,1fr))”,gap:8}}>{Array.from({length:sc.dp},(_,d)=>d+1).map(day=>{const k=sc.id+”|”+p+”|”+day;const has=!!lessons[k];return <div key={day} style={{padding:“10px 6px”,borderRadius:10,border:“2px solid “+(has?cc:”#e0e0e0”),background:has?cbg:”#fff”,textAlign:“center”,cursor:“pointer”,position:“relative”}} onClick={()=>{setSp(p);setSd(day);setV(“lesson”)}}><span style={{fontSize:13,fontWeight:800,color:has?cc:”#bbb”}}>{day}</span>{has?<div style={{fontSize:9,color:”#888”}}>{lessons[k].activities.length} att.</div>:<div style={{fontSize:9,color:”#ccc”}}>vuoto</div>}{has&&lessons[k].activities.some(a=>a.targetLanguage)&&<div style={{position:“absolute”,top:3,right:3,width:7,height:7,borderRadius:4,background:”#8CB43B”}}/>}</div>})}</div></div>)}</div>}
-
-{view===“lesson”&&<div>
-<div style={{display:“flex”,justifyContent:“space-between”,alignItems:“flex-start”,gap:12,marginBottom:14,flexWrap:“wrap”}}>
-<div style={{display:“flex”,alignItems:“center”,gap:10}}><span style={{fontSize:30}}>{sc.em}</span><div><h2 style={{margin:0,fontSize:15,fontWeight:700,color:”#888”}}>{sc.name} — {sp}</h2><h3 style={{margin:0,fontSize:28,fontWeight:900,color:cc}}>Day {sd}</h3></div></div>
-<div style={{display:“flex”,gap:6,alignItems:“center”,flexWrap:“wrap”}}>
-<input type=“time” value={st} onChange={e=>setSt(e.target.value)} style={{padding:“6px 8px”,border:“2px solid “+cc+“40”,borderRadius:8,fontSize:13,fontWeight:700,width:82,fontFamily:“Nunito”}}/>
-{cl&&cl.activities.length>0&&<button style={{…S.btn,background:cc,color:”#fff”}} onClick={()=>{setEl(0);setCi(0);setLv(false);setDn(new Set());setV(“live”)}}>Live</button>}
-<button style={{…S.btn,background:”#F26522”,color:”#fff”}} onClick={()=>fr.current?.click()}>{cl?“Ri-scan”:“Scan TG”}</button>
-<input ref={fr} type=“file” accept=“image/*” multiple style={{display:“none”}} onChange={e=>{scanD(e.target.files);e.target.value=””}}/>
-{cl&&cl.activities.length>0&&<><button style={{…S.btn,background:”#00B3B0”,color:”#fff”}} onClick={()=>setV(“materials”)}>Mat.</button><button style={{…S.btn,background:”#E878A0”,color:”#fff”}} onClick={()=>setPr(true)}>Stampa</button><button style={{…S.btn,background:”#ffebee”,color:”#c62828”,fontSize:11}} onClick={()=>{if(confirm(“Cancellare?”)){delL();setV(“course”);setSd(null)}}}>Canc.</button></>}
-</div>
-</div>
-{scn&&<div style={{padding:“12px 16px”,background:ss.includes(“Fatto”)?”#E8F5E9”:ss.includes(“Err”)?”#FFEBEE”:”#FFF3E0”,borderRadius:12,marginBottom:12,fontSize:13,fontWeight:700,display:“flex”,alignItems:“center”,gap:10}}>{!ss.includes(“Fatto”)&&!ss.includes(“Err”)&&<div style={{width:18,height:18,border:“3px solid #F26522”,borderTopColor:“transparent”,borderRadius:“50%”,animation:“sp .8s linear infinite”}}/>}{ss}</div>}
-{(!cl||!cl.activities.length)&&!scn&&<div style={{textAlign:“center”,padding:“60px 24px”,background:”#fff”,borderRadius:20,boxShadow:“0 2px 12px #0001”}}><div style={{fontSize:64,marginBottom:12}}>{sc.em}</div><h3 style={{fontSize:18,fontWeight:800,margin:“0 0 8px”}}>Lezione vuota</h3><p style={{fontSize:14,color:”#888”,fontWeight:600,margin:“0 0 20px”}}>Fotografa le pagine del Day (2-3 foto). La routine viene aggiunta automaticamente come blocco unico.</p><button style={{…S.btn,background:”#F26522”,color:”#fff”,fontSize:15,padding:“12px 28px”}} onClick={()=>fr.current?.click()}>Scan TG</button></div>}
-{cl&&cl.activities.length>0&&<><div style={{display:“flex”,gap:16,padding:“10px 14px”,background:”#fff”,borderRadius:10,fontSize:13,color:”#666”,marginBottom:12,fontWeight:600}}><span>{td(cl.activities)} min</span><span>{cl.activities.filter(a=>!a.optional).length}+{cl.activities.filter(a=>a.optional).length}opt</span></div>
-<div style={{display:“flex”,flexDirection:“column”,gap:8}}>{cl.activities.map((a,idx)=>{const ti=gT(cl.activities,st);const t=ti.find(x=>x.id===a.id);const isExp=exp.has(a.id);return <div key={a.id} style={{background:”#fff”,borderRadius:14,padding:“12px 14px”,borderLeft:“5px solid “+(a.optional?”#FFB74D”:cc),opacity:a.optional?.7:1,boxShadow:“0 2px 6px #0001”}}>
-<div style={{display:“flex”,alignItems:“center”,gap:8}}>
-<div style={{width:44,textAlign:“center”,flexShrink:0}}><span style={{fontWeight:800,fontSize:13,color:cc}}>{t?t.st:”—”}</span><br/><span style={{fontSize:10,color:”#bbb”}}>{a.duration}m</span></div>
-<div style={{flex:1,minWidth:0}}>
-<div style={{fontSize:14,fontWeight:800,display:“flex”,alignItems:“center”,gap:4,flexWrap:“wrap”}}>{a.optional&&<span style={{padding:“1px 4px”,background:”#FFF3E0”,color:”#E65100”,borderRadius:3,fontSize:8,fontWeight:800}}>OPT</span>}{a.name}{a.targetLanguage&&<span style={{width:7,height:7,borderRadius:4,background:”#8CB43B”,flexShrink:0}}/>}{a.sub&&<button onClick={()=>togExp(a.id)} style={{background:“none”,border:“1px solid #ddd”,borderRadius:4,padding:“0 5px”,fontSize:10,color:”#888”,cursor:“pointer”,marginLeft:4}}>{isExp?”\u25B2”:”\u25BC”} dettagli</button>}</div>
-{a.tracks&&<div style={{fontSize:10,color:”#bbb”,fontWeight:600}}>{a.tracks}</div>}
-</div>
-<div style={{display:“flex”,gap:2,flexShrink:0}}><button style={S.sm} onClick={()=>{const x=[…cl.activities];if(idx>0){[x[idx],x[idx-1]]=[x[idx-1],x[idx]];svL({…cl,activities:x})}}}>↑</button><button style={S.sm} onClick={()=>{const x=[…cl.activities];if(idx<x.length-1){[x[idx],x[idx+1]]=[x[idx+1],x[idx]];svL({…cl,activities:x})}}}>↓</button><button style={{…S.sm,color:cc}} onClick={()=>{setEa(a);setEf({…a});setV(“edit”)}}>✎</button><button style={{…S.sm,color:”#E94E58”}} onClick={()=>svL({…cl,activities:cl.activities.filter(x=>x.id!==a.id)})}>×</button></div>
-</div>
-{a.targetLanguage&&<div style={{margin:“6px 0 2px”,padding:“6px 10px”,background:cc+“08”,borderRadius:8,borderLeft:“3px solid “+cc}}><span style={{fontSize:8,fontWeight:800,color:cc,textTransform:“uppercase”}}>TARGET LANGUAGE</span><br/><span style={{fontSize:12,fontWeight:600,lineHeight:1.4}}>{a.targetLanguage}</span></div>}
-{isExp&&a.sub&&<div style={{margin:“6px 0 2px”,padding:“8px 10px”,background:”#f9f9f7”,borderRadius:8}}>{a.sub.map((s,i)=> <div key={i} style={{marginTop:i?6:0}}><span style={{fontSize:12,fontWeight:700}}>{s.name}</span>{s.target_language&&<div style={{fontSize:11,color:”#555”,marginTop:2,padding:“3px 6px”,background:”#FFFDE7”,borderRadius:4,borderLeft:“2px solid “+cc}}>{s.target_language}</div>}</div>)}</div>}
-{a.description&&<p style={{fontSize:11,color:”#999”,margin:“4px 0 0”}}>{a.description}</p>}
-{a.materials&&<p style={{fontSize:10,color:”#00B3B0”,margin:“2px 0 0”,fontWeight:600}}>{a.materials}</p>}
-<div style={{textAlign:“center”,marginTop:3}}><button style={{background:“none”,border:“1px dashed #eee”,borderRadius:5,padding:“2px 10px”,fontSize:9,color:”#ddd”,cursor:“pointer”}} onClick={()=>{const x=[…cl.activities];x.splice(idx+1,0,{id:“a”+Date.now(),name:“New”,duration:3,tracks:””,targetLanguage:””,description:””,materials:””,optional:false});svL({…cl,activities:x})}}>+</button></div>
-</div>})}</div></>}
-
-  </div>}
-
-{view===“edit”&&ea&&<div style={{maxWidth:550,margin:“0 auto”}}><h2 style={{fontSize:20,fontWeight:800,marginBottom:16}}>Modifica</h2><div style={{background:”#fff”,borderRadius:16,padding:24,boxShadow:“0 4px 16px #0001”}}><label style={S.lab}>Nome<input style={S.inp} value={ef.name||””} onChange={e=>setEf(f=>({…f,name:e.target.value}))}/></label><div style={{display:“flex”,gap:10}}><label style={{...S.lab,flex:1}}>Min<input type=“number” style={S.inp} value={ef.duration||0} onChange={e=>setEf(f=>({…f,duration:e.target.value}))}/></label><label style={{...S.lab,flex:1}}>Tracce<input style={S.inp} value={ef.tracks||””} onChange={e=>setEf(f=>({…f,tracks:e.target.value}))}/></label></div><label style={S.lab}>Target Language<textarea style={{…S.inp,minHeight:80}} value={ef.targetLanguage||””} onChange={e=>setEf(f=>({…f,targetLanguage:e.target.value}))}/></label><label style={S.lab}>Descrizione<textarea style={{…S.inp,minHeight:50}} value={ef.description||””} onChange={e=>setEf(f=>({…f,description:e.target.value}))}/></label><label style={S.lab}>Materiali<textarea style={{…S.inp,minHeight:40}} value={ef.materials||””} onChange={e=>setEf(f=>({…f,materials:e.target.value}))}/></label><label style={{display:“flex”,alignItems:“center”,gap:6,fontSize:12,fontWeight:600,color:”#888”,marginBottom:14}}><input type=“checkbox” checked={ef.optional||false} onChange={e=>setEf(f=>({…f,optional:e.target.checked}))}/>Opzionale</label><div style={{display:“flex”,gap:10}}><button style={{…S.btn,background:cc,color:”#fff”,flex:1}} onClick={()=>{svL({…cl,activities:cl.activities.map(a=>a.id===ea.id?{…ef,duration:Number(ef.duration)||0}:a)});setV(“lesson”);setEa(null)}}>Salva</button><button style={{…S.btn,background:”#f0f0f0”,color:”#888”,flex:1}} onClick={()=>setV(“lesson”)}>Annulla</button></div></div></div>}
-
-{view===“materials”&&cl&&<div><h2 style={{fontSize:22,fontWeight:900,color:”#00B3B0”}}>Materiali</h2><p style={{fontSize:13,color:”#888”}}>{sc.name} — {sp} — Day {sd}</p>{cl.activities.filter(a=>a.materials).map(a=> <div key={a.id} style={{background:”#fff”,borderRadius:12,padding:“10px 14px”,borderLeft:“4px solid “+cc,marginTop:8,boxShadow:“0 1px 4px #0001”}}><b style={{fontSize:13}}>{a.name}</b><br/><span style={{fontSize:12,color:”#666”}}>{a.materials}</span></div>)}<div style={{marginTop:20,display:“flex”,gap:8}}><button style={{…S.btn,background:”#E878A0”,color:”#fff”}} onClick={()=>setPr(true)}>Stampa</button><button style={{…S.btn,background:”#f0f0f0”,color:”#888”}} onClick={()=>setV(“lesson”)}>Torna</button></div></div>}
-
-{view===“live”&&cl&&(()=>{const ta=gT(cl.activities,st);return <div><div style={{textAlign:“center”,marginBottom:20}}><p style={{fontSize:13,color:”#888”,fontWeight:600,margin:“0 0 4px”}}>{sc.em} {sc.name} — {sp} — Day {sd}</p><div style={{fontSize:48,fontWeight:900}}>{ft(el)}<span style={{fontSize:14,color:”#bbb”,marginLeft:8}}>/ {td(cl.activities)}m</span></div><div style={{display:“flex”,gap:6,justifyContent:“center”,marginTop:10,flexWrap:“wrap”}}>{!lv?<button style={{…S.btn,background:”#8CB43B”,color:”#fff”,padding:“10px 24px”,fontSize:14}} onClick={()=>setLv(true)}>Start</button>:<button style={{…S.btn,background:”#F26522”,color:”#fff”,padding:“10px 24px”,fontSize:14}} onClick={()=>setLv(false)}>Pausa</button>}<button style={{…S.btn,background:”#f0f0f0”,color:”#888”}} onClick={()=>{setLv(false);setEl(0);setDn(new Set())}}>Reset</button><label style={{display:“flex”,alignItems:“center”,gap:4,fontSize:11,fontWeight:700,color:as2?”#8CB43B”:”#bbb”,padding:“8px 14px”,background:as2?”#E8F5E9”:”#f5f5f5”,borderRadius:10,cursor:“pointer”}}><input type=“checkbox” checked={as2} onChange={e=>setAs(e.target.checked)}/>Auto {st}</label><button style={{…S.btn,background:”#f0f0f0”,color:”#888”}} onClick={()=>setV(“lesson”)}>Torna</button></div>{as2&&!lv&&<p style={{fontSize:12,color:”#8CB43B”,marginTop:8,fontWeight:700}}>Attesa {st}…</p>}</div><div style={{display:“flex”,flexDirection:“column”,gap:8}}>{ta.map((a,i)=>{const iD=dn.has(a.id),iA=i===ci&&lv&&!iD;let cB=ta.slice(0,i).reduce((s,x)=>s+x.duration,0);const iP=(lv&&el/60>=cB+a.duration)||iD;const aE=lv?Math.max(0,el-cB*60):0,aT=a.duration*60;const pg=lv?Math.min(1,aE/aT):0,ov=aE>aT&&!iD;return <div key={a.id} style={{borderRadius:14,padding:“12px 14px”,borderLeft:“5px solid “+(iD?”#8CB43B”:iA?cc:iP?”#ddd”:”#e8e8e8”),background:iD?”#E8F5E908”:iA?cc+“10”:”#fff”,transform:iA?“scale(1.01)”:“none”,boxShadow:iA?“0 4px 20px “+cc+“20”:“0 2px 6px #0001”,transition:“all .3s”}}><div style={{display:“flex”,alignItems:“center”,gap:8}}><button onClick={()=>{setDn(p=>{const n=new Set(p);n.has(a.id)?n.delete(a.id):n.add(a.id);return n})}} style={{width:28,height:28,borderRadius:8,border:“2px solid “+(iD?”#8CB43B”:cc),background:iD?”#8CB43B”:“transparent”,color:”#fff”,cursor:“pointer”,display:“flex”,alignItems:“center”,justifyContent:“center”,fontSize:13,flexShrink:0}}>{iD?”\u2713”:””}</button><b style={{fontSize:13,color:iA?cc:”#bbb”,width:44}}>{a.st}</b><div style={{flex:1}}><div style={{fontSize:14,fontWeight:800,color:iD||iP?”#bbb”:”#3C3C3B”,textDecoration:iD?“line-through”:“none”}}>{a.name}</div><div style={{fontSize:10,color:”#bbb”}}>{a.tracks||”-”} {a.duration}m</div></div>{iA&&<span style={{fontSize:22,fontWeight:900,color:ov?”#E94E58”:cc}}>{ov?”+”:””}{ft(ov?aE-aT:aT-aE)}</span>}</div>{iA&&<div style={{height:4,background:”#eee”,borderRadius:2,marginTop:6,overflow:“hidden”}}><div style={{height:“100%”,borderRadius:2,background:ov?”#E94E58”:cc,width:pg*100+”%”,transition:“width 1s linear”}}/></div>}{a.targetLanguage&&(iA||!lv)&&<div style={{margin:“6px 0 2px”,padding:“6px 10px”,background:cc+“08”,borderRadius:8,borderLeft:“3px solid “+cc}}><span style={{fontSize:8,fontWeight:800,color:cc}}>TARGET LANGUAGE</span><br/><span style={{fontSize:12,fontWeight:iA?700:500}}>{a.targetLanguage}</span></div>}{iA&&a.sub&&<div style={{margin:“4px 0”,padding:“6px 8px”,background:”#f9f9f7”,borderRadius:6}}>{a.sub.map((s,j)=> <div key={j} style={{fontSize:11,marginTop:j?3:0}}><b>{s.name}:</b> <span style={{color:”#555”}}>{s.target_language||”—”}</span></div>)}</div>}{iA&&a.description&&<p style={{fontSize:11,color:”#888”,margin:“3px 0 0”}}>{a.description}</p>}</div>})}</div></div>})()}
-
-  </main></div>);
+      {view === "lesson" && (
+        <div>
+          <button onClick={() => setV("course")}>Indietro</button>
+          <h2>Day {sd}</h2>
+          <input type="file" multiple onChange={(e) => scanD(e.target.files)} />
+          {scn && <div>{ss}</div>}
+          {cl && cl.activities.map(a => (
+            <div key={a.id} style={{ background: "#fff", padding: 10, margin: "5px 0", borderRadius: 8 }}>
+              <b>{a.name}</b> ({a.duration}m)
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
-const S={btn:{padding:“8px 16px”,borderRadius:10,border:“none”,cursor:“pointer”,fontSize:12,fontWeight:800,fontFamily:“Nunito,sans-serif”},sm:{width:24,height:24,borderRadius:6,border:“1px solid #eee”,background:”#fafafa”,cursor:“pointer”,display:“flex”,alignItems:“center”,justifyContent:“center”,fontSize:12,color:”#bbb”},lab:{display:“flex”,flexDirection:“column”,gap:4,fontSize:12,fontWeight:700,color:”#888”,marginBottom:12},inp:{padding:“10px 12px”,border:“2px solid #eee”,borderRadius:10,fontSize:14,fontWeight:600,resize:“vertical”,fontFamily:“Nunito,sans-serif”}};
+const S = {
+  btn: { padding: "8px 16px", borderRadius: 10, border: "none", cursor: "pointer", fontSize: 12, fontWeight: 800 },
+  sm: { width: 24, height: 24, borderRadius: 6, border: "1px solid #eee", background: "#fafafa" }
+};
